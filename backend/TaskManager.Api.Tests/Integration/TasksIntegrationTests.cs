@@ -128,8 +128,8 @@ public class TasksIntegrationTests
         {
             title = "My task",
             description = "Some description",
-            status = 0,    // TaskItemStatus.Todo
-            priority = 2   // Priority.High
+            status = "Todo",
+            priority = "High"
         });
 
         Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
