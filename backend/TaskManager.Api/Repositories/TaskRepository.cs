@@ -11,11 +11,12 @@ public class TaskRepository : ITaskRepository
 
     public TaskRepository(AppDbContext db) => _db = db;
 
-    public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> GetAllAsync(
+    public async Task<(IReadOnlyList<TaskItem> Items, int TotalCount)> GetAllAsync(
         string userId, TaskQueryParams queryParams)
     {
         var query = _db.Tasks
             .Include(t => t.Tags)
+            .AsNoTracking()
             .Where(t => t.UserId == userId);
 
         if (queryParams.Status != null)
