@@ -13,8 +13,7 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
 
         RuleFor(x => x.Title).MaximumLength(200).When(x => x.Title != null);
         RuleFor(x => x.DueDate)
-            .Must(d => d!.Value.Kind == DateTimeKind.Utc)
-            .When(x => x.DueDate != null)
+            .Must(d => d == null || d.Value.Kind == DateTimeKind.Utc)
             .WithMessage("DueDate must be UTC.");
     }
 }
