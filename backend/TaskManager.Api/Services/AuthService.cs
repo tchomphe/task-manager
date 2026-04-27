@@ -12,7 +12,6 @@ namespace TaskManager.Api.Services;
 
 public class AuthService(
     UserManager<AppUser> userManager,
-    SignInManager<AppUser> signInManager,
     IConfiguration configuration) : IAuthService
 {
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -40,8 +39,8 @@ public class AuthService(
         if (user is null)
             throw new UnauthorizedAccessException();
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
-        if (!result.Succeeded)
+        var passwordValid = await userManager.CheckPasswordAsync(user, request.Password);
+        if (!passwordValid)
             throw new UnauthorizedAccessException();
 
         return IssueToken(user);

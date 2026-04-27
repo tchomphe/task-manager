@@ -32,8 +32,9 @@ public class AuthIntegrationTests
                         d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
                     if (descriptor is not null) services.Remove(descriptor);
 
+                    var dbName = Guid.NewGuid().ToString();
                     services.AddDbContext<AppDbContext>(o =>
-                        o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+                        o.UseInMemoryDatabase(dbName));
                 });
             });
 
