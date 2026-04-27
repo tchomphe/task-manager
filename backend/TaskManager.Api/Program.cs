@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using TaskManager.Api.Data;
 using TaskManager.Api.Middleware;
 using TaskManager.Api.Models;
+using TaskManager.Api.Repositories;
 using TaskManager.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,10 @@ builder.Services.AddProblemDetails();
 
 // Application services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var app = builder.Build();
 
