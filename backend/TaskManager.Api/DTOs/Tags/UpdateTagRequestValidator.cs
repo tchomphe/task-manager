@@ -13,7 +13,7 @@ public class UpdateTagRequestValidator : AbstractValidator<UpdateTagRequest>
         RuleFor(x => x.Name).MaximumLength(50).When(x => x.Name != null);
         RuleFor(x => x.Color)
             .Matches(@"^#[0-9A-Fa-f]{6}$")
-            .When(x => x.Color != null)
-            .WithMessage("Color must be a valid hex color (e.g. #3B82F6).");
+            .WithMessage("Color must be a valid hex color (e.g. #3B82F6).")
+            .When(x => x.Color != null);
     }
 }
