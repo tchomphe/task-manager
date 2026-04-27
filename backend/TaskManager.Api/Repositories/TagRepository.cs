@@ -14,21 +14,19 @@ public class TagRepository : ITagRepository
 
     public async Task<IEnumerable<Tag>> GetManyByNamesAsync(string userId, string[] names)
     {
-        var userTags = await _db.Tags.Where(t => t.UserId == userId).ToListAsync();
+        var lowerNames = names.Select(n => n.ToLower()).ToHashSet();
+        var found = await _db.Tags
+            .Where(t => t.UserId == userId && lowerNames.Contains(t.Name.ToLower()))
+            .ToListAsync();
 
-        var result = new List<Tag>();
         foreach (var name in names)
         {
-            var tag = userTags.FirstOrDefault(t =>
-                t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-            if (tag == null)
+            if (!found.Any(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 throw new ValidationException(
                     [new ValidationFailure("Tags", $"Tag '{name}' not found.")]);
-
-            result.Add(tag);
         }
-        return result;
+
+        return found;
     }
 
     public async Task<Tag?> GetByIdAsync(string userId, Guid tagId)
