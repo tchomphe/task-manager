@@ -1,6 +1,9 @@
 # Worktrees
 .worktrees/
 
+# Local planning docs (not for repo)
+docs/superpowers/
+
 # Build outputs
 bin/
 obj/
