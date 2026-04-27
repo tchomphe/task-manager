@@ -17,13 +17,13 @@ public class AppDbContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<TaskTag>()
-            .HasKey(tt => new { tt.TaskId, tt.TagId });
-
         builder.Entity<TaskItem>()
             .HasMany(t => t.Tags)
             .WithMany(t => t.Tasks)
-            .UsingEntity<TaskTag>();
+            .UsingEntity<TaskTag>(
+                j => j.HasOne(tt => tt.Tag).WithMany().HasForeignKey(tt => tt.TagId),
+                j => j.HasOne(tt => tt.Task).WithMany().HasForeignKey(tt => tt.TaskId),
+                j => j.HasKey(tt => new { tt.TaskId, tt.TagId }));
 
         var utcConverter = new ValueConverter<DateTime, DateTime>(
             v => v.ToUniversalTime(),
