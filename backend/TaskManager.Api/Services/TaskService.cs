@@ -40,7 +40,6 @@ public class TaskService : ITaskService
     {
         var task = new TaskItem
         {
-            Id = Guid.NewGuid(),
             UserId = userId,
             Title = request.Title,
             Description = request.Description,

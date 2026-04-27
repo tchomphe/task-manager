@@ -69,7 +69,7 @@ public class TaskServiceTests
 
         _taskRepo.Setup(r => r.GetByIdAsync("user1", taskId)).ReturnsAsync(task);
         _taskRepo.Setup(r => r.UpdateAsync(It.IsAny<TaskItem>())).ReturnsAsync((TaskItem t) => t);
-        _tagRepo.Setup(r => r.GetManyByNamesAsync("user1", new[] { "new" }))
+        _tagRepo.Setup(r => r.GetManyByNamesAsync("user1", It.Is<string[]>(a => a.SequenceEqual(new[] { "new" }))))
             .ReturnsAsync([newTag]);
 
         var result = await _sut.UpdateTaskAsync("user1", taskId,

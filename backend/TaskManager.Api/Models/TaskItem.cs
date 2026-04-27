@@ -13,10 +13,4 @@ public class TaskItem
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
-
-    public TaskItem()
-    {
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
-    }
 }
