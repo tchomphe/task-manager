@@ -25,3 +25,97 @@ Content-Type: application/json
 
 # After login, copy the token from the response and paste below:
 # @token = eyJhbGci...
+
+### ── TAGS ──────────────────────────────────────
+
+# Create a tag with color
+POST {{baseUrl}}/api/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "work",
+  "color": "#6366F1"
+}
+
+###
+
+# List all tags for current user
+GET {{baseUrl}}/api/tags
+Authorization: Bearer {{token}}
+
+###
+
+# Update a tag (replace {{tagId}})
+PUT {{baseUrl}}/api/tags/{{tagId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "work-updated",
+  "color": "#3B82F6"
+}
+
+###
+
+# Delete a tag
+DELETE {{baseUrl}}/api/tags/{{tagId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ── TASKS ───────────────────────────────────────
+
+# Create a task (tags must already exist)
+POST {{baseUrl}}/api/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread",
+  "status": "Todo",
+  "priority": "Medium",
+  "tags": ["work"]
+}
+
+###
+
+# List tasks (with optional filters)
+GET {{baseUrl}}/api/tasks?search=groceries&status=Todo&page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+###
+
+# Get a single task (replace {{taskId}})
+GET {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Update a task (PATCH semantics — omit fields to leave unchanged)
+PUT {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "InProgress",
+  "tags": ["work"]
+}
+
+###
+
+# Clear all tags from a task
+PUT {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tags": []
+}
+
+###
+
+# Delete a task
+DELETE {{baseUrl}}/api/tasks/{{taskId}}
+Authorization: Bearer {{token}}
