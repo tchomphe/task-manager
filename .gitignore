@@ -1,0 +1,28 @@
+# Worktrees
+.worktrees/
+
+# Build outputs
+bin/
+obj/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Node
+node_modules/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
