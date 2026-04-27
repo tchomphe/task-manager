@@ -12,3 +12,5 @@ builder.Services.AddIdentityCore<AppUser>()
 
 var app = builder.Build();
 app.Run();
+
+public partial class Program { }
