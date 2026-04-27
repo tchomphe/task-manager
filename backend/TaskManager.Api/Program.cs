@@ -23,8 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentityCore<AppUser>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager();
+    .AddEntityFrameworkStores<AppDbContext>();
 
 // JWT Bearer auth
 var jwtSecret = builder.Configuration["JwtSettings:Secret"];
