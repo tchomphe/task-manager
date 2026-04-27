@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Task Manager is a production-quality, full-stack task management application built as a take-home engineering assessment. It demonstrates strong fundamentals — clean API design, data ownership enforcement, proper validation, and a polished frontend — treated as a small, shippable MVP rather than a toy project.
+Task Manager is a production-quality, full-stack task management application. It demonstrates strong fundamentals — clean API design, data ownership enforcement, proper validation, and a polished frontend — treated as a small, shippable MVP rather than a toy project.
 
 ## Problem Statement
 
