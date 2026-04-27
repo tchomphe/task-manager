@@ -1,1 +1,27 @@
-# API requests — populated in Phase 2
+@baseUrl = http://localhost:5000
+
+### Register new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!"
+}
+
+###
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!"
+}
+
+###
+
+# After login, copy the token from the response and paste below:
+# @token = eyJhbGci...
