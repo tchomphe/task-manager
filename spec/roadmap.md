@@ -89,7 +89,7 @@ backend/TaskManager.Api/Models/
                       # Priority (enum), DueDate (DateTime? UTC), UserId (string FK),
                       # CreatedAt (DateTime UTC), UpdatedAt (DateTime UTC),
                       # Tags (ICollection<Tag> many-to-many)
-  Tag.cs              # Id (Guid), Name (string, req), UserId (string FK),
+  Tag.cs              # Id (Guid), Name (string, req), Color (string?, hex), UserId (string FK),
                       # Tasks (ICollection<TaskItem> many-to-many)
   TaskTag.cs          # Join entity: TaskId (Guid FK), TagId (Guid FK) — composite PK
   Enums.cs            # TaskStatus { Todo, InProgress, Done }, Priority { Low, Medium, High }
@@ -174,23 +174,30 @@ api.http                            # Populated: register, login, capture token 
 
 ## Phase 3 — Task CRUD + Tags + Search + Pagination
 
-**Goal:** All task endpoints with user-scoped data, inline tag creation, server-side search, and pagination. Services depend on repository interfaces, not EF Core directly.
+**Goal:** All task endpoints with user-scoped data, explicit tag management (create before use), tag listing for autocomplete, server-side search, and pagination. Services depend on repository interfaces, not EF Core directly.
 
 ### Deliverables
 
 ```
 backend/TaskManager.Api/Repositories/
-  ITaskRepository.cs                # GetAll, GetById, Create, Update, Delete, Count
-  ITagRepository.cs                 # GetByUserAndName, GetByIds, Create, GetOrCreateMany
+  ITaskRepository.cs                # GetAll, GetById, Create, Update, Delete
+  ITagRepository.cs                 # GetManyByNamesAsync, GetByIdAsync, CreateAsync, UpdateAsync, DeleteAsync, GetAllByUserAsync
   TaskRepository.cs                 # EF Core implementation; all queries include UserId filter
   TagRepository.cs                  # EF Core implementation; all queries include UserId filter
 
 backend/TaskManager.Api/DTOs/
+  Tags/
+    TagResponse.cs                  # Id (Guid), Name (string), Color (string?)
+    CreateTagRequest.cs             # Name (string, req), Color (string?, hex #RRGGBB)
+    CreateTagRequestValidator.cs    # Name required max 50 chars; Color if present must match ^#[0-9A-Fa-f]{6}$
+    UpdateTagRequest.cs             # Name (string?), Color (string?) — at least one required
+    UpdateTagRequestValidator.cs    # At least one field non-null; same format rules as create
   Tasks/
-    CreateTaskRequest.cs            # Title (req), Description, Status, Priority, DueDate, Tags (string[])
+    CreateTaskRequest.cs            # Title (req), Description, Status, Priority, DueDate,
+                                    # Tags (string[]?) — names must already exist for user
     UpdateTaskRequest.cs            # All same fields — all optional for partial update
     TaskResponse.cs                 # Id, Title, Description, Status, Priority, DueDate,
-                                    # Tags (string[]), CreatedAt, UpdatedAt
+                                    # Tags (TagResponse[]), CreatedAt, UpdatedAt
                                     # NO UserId, NO entity types
     PagedResponse.cs                # Items (List<T>), TotalCount, Page, PageSize, TotalPages
     TaskQueryParams.cs              # Search (string?), Status?, Priority?, Page (default 1),
@@ -206,18 +213,29 @@ backend/TaskManager.Api/Services/
                                     # CreateTask(userId, request) → TaskResponse
                                     # UpdateTask(userId, taskId, request) → TaskResponse
                                     # DeleteTask(userId, taskId) → void or NotFoundException
+  ITagService.cs
+  TagService.cs                     # Depends on ITagRepository (injected)
+                                    # CreateTag(userId, request) → TagResponse (400 on duplicate name)
+                                    # UpdateTag(userId, tagId, request) → TagResponse (404 if not owned, 400 on duplicate name)
+                                    # DeleteTag(userId, tagId) → void (404 if not owned; cascade removes TaskTag entries)
+                                    # GetTags(userId) → TagResponse[]
 
 backend/TaskManager.Api/Controllers/
   TasksController.cs                # [Authorize] on entire controller
                                     # GET    /api/tasks       → 200 PagedResponse<TaskResponse>
                                     # POST   /api/tasks       → 201 TaskResponse + Location header
                                     # GET    /api/tasks/{id}  → 200 TaskResponse
-                                    # PUT    /api/tasks/{id}  → 200 TaskResponse
+                                    # PUT    /api/tasks/{id}  → 200 TaskResponse (PATCH semantics)
                                     # DELETE /api/tasks/{id}  → 204 No Content
+  TagsController.cs                 # [Authorize] on entire controller
+                                    # GET    /api/tags        → 200 TagResponse[]
+                                    # POST   /api/tags        → 201 TagResponse + Location header
+                                    # PUT    /api/tags/{id}   → 200 TagResponse (PATCH semantics)
+                                    # DELETE /api/tags/{id}   → 204 No Content
 
 backend/TaskManager.Api/
-  Program.cs                        # Registers ITaskRepository, ITagRepository, ITaskService,
-                                    # IAuthService with DI
+  Program.cs                        # Registers ITaskRepository, ITagRepository,
+                                    # ITaskService, ITagService with DI
 ```
 
 ### Query Logic (in TaskRepository)
@@ -229,19 +247,25 @@ backend/TaskManager.Api/
 5. `CountAsync()` for total (before pagination)
 6. `.Skip((page-1) * pageSize).Take(pageSize)`
 
-### Tag Handling (in TaskService via ITagRepository)
+### Tag Handling
 
-- On create/update: each tag name resolved by `(Name, UserId)` — reuse existing or create new
-- Tags **replaced wholesale** on update — not merged
-- `TaskResponse.Tags` returns `string[]` of names only — no IDs exposed
+- Tags must be created explicitly via `POST /api/tags` before being referenced on tasks
+- Task create/update accepts `string[]` tag names; `TagRepository.GetManyByNamesAsync` resolves them — throws 400 if any name not found for the user
+- **PATCH semantics on update**: omit `Tags` → unchanged; `Tags: []` → cleared; `Tags: ["x"]` → replaced wholesale
+- `TaskResponse.Tags` returns full `TagResponse[]` (id, name, color)
+- `GET /api/tags` returns `TagResponse[]` for the current user — used for autocomplete/picker
 
 ### Definition of Done
 
 - Full CRUD cycle works via Swagger or `api.http`
+- Full CRUD for tags: `POST`, `PUT`, `DELETE` all enforce ownership; duplicate name returns 400
+- `GET /api/tags` returns tags (with color) for the authenticated user
+- `DELETE /api/tags/{id}` removes tag from all associated tasks
+- Creating a task with a non-existent tag name returns 400
+- Task responses return full `TagResponse[]` (id, name, color)
 - User A `GET /api/tasks/{userBTaskId}` returns `404` (ownership enforced by scoped query)
 - `GET /api/tasks?search=foo&page=2&pageSize=5` returns correct slice with accurate `TotalCount`
-- Tags created inline and returned as `string[]` on task responses
-- All endpoints documented in Swagger with XML doc comments
+- `PUT /api/tasks/{id}` with omitted `Tags` leaves tags unchanged; with `Tags: []` clears all tags
 - `dotnet build` exits 0 with no warnings
 
 ---

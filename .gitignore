@@ -3,6 +3,7 @@
 
 # Local planning docs (not for repo)
 docs/superpowers/
+.superpowers/
 
 # Build outputs
 bin/

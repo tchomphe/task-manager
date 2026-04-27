@@ -72,6 +72,7 @@ Managed by ASP.NET Core Identity. No custom columns beyond Identity defaults.
 |---|---|---|
 | Id | `Guid` | PK |
 | Name | `string` | Required |
+| Color | `string?` | Hex color code (e.g. `#3B82F6`), nullable |
 | UserId | `string` | FK → Users.Id — tags are user-scoped, never shared |
 
 #### TaskTags (junction)
@@ -95,7 +96,7 @@ Tasks >──< Tags        (many-to-many via TaskTags)
 
 - **Ownership enforced at query level** — every `Tasks` and `Tags` query filters by `UserId` extracted from the JWT claim, never from the request body.
 - **Tags are user-scoped** — a tag belongs to the user who created it; tags with the same name from different users are distinct rows.
-- **Tags created inline** — when a task is created or updated with tag names, the service resolves existing tags or creates new ones for that user.
+- **Tags are pre-created** — tags must be created explicitly via `POST /api/tags` before being referenced on tasks. Task create/update accepts tag names by string; `TagRepository.GetManyByNamesAsync` resolves them and throws 400 if any name is not found for that user.
 - **UTC everywhere** — `DueDate`, `CreatedAt`, and `UpdatedAt` are stored and returned as UTC ISO 8601. Clients handle timezone display.
 - **Soft delete not in scope** — tasks and tags are hard-deleted. No `DeletedAt` column.
 

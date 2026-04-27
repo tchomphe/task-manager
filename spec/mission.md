@@ -22,7 +22,7 @@ Users need a reliable personal task manager where their data is theirs alone. Ev
 ### In scope
 - User registration and login (JWT, no OAuth)
 - Task CRUD with: title, description, status (`Todo` / `InProgress` / `Done`), priority (`Low` / `Medium` / `High`), due date (UTC), tags
-- User-scoped tags (create inline with tasks; no shared/global tags)
+- User-scoped tags (created explicitly via `POST /api/tags` before referencing on tasks; no shared/global tags)
 - Search tasks by title or description
 - Paginated task list (server-side)
 - Global error handling with structured JSON error responses
