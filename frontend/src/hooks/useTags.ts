@@ -14,7 +14,7 @@ export function useCreateTag() {
   return useMutation({
     mutationFn: (data: CreateTagRequest) =>
       axiosClient.post<TagResponse>('/tags', data).then(r => r.data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
+    onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
   });
 }
 
@@ -23,7 +23,10 @@ export function useUpdateTag() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTagRequest }) =>
       axiosClient.put<TagResponse>(`/tags/${id}`, data).then(r => r.data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
   });
 }
 
@@ -31,6 +34,9 @@ export function useDeleteTag() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => axiosClient.delete(`/tags/${id}`),
-    onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
   });
 }

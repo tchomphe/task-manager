@@ -31,7 +31,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (data: CreateTaskRequest) =>
       axiosClient.post<TaskResponse>('/tasks', data).then(r => r.data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
+    onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
   });
 }
 
