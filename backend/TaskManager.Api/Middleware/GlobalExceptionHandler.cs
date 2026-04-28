@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace TaskManager.Api.Middleware;
 
-public class GlobalExceptionHandler : IExceptionHandler
+public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -39,6 +39,8 @@ public class GlobalExceptionHandler : IExceptionHandler
                 break;
 
             default:
+                logger.LogError(exception, "Unhandled exception for {Method} {Path}",
+                    httpContext.Request.Method, httpContext.Request.Path);
                 httpContext.Response.StatusCode = 500;
                 await httpContext.Response.WriteAsJsonAsync(
                     new { error = "An unexpected error occurred", traceId = httpContext.TraceIdentifier },

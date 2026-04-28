@@ -56,9 +56,9 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const apiError = login.error
-    ? (login.error as { response?: { data?: { error?: string } } })
-        .response?.data?.error ?? 'Invalid credentials'
+  const loginErr = login.error as { response?: { data?: { error?: string } } } | null;
+  const apiError = loginErr
+    ? loginErr.response?.data?.error ?? 'Unable to reach server. Is the backend running?'
     : null;
 
   return (
@@ -79,9 +79,9 @@ function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
-  const apiError = register_.error
-    ? (register_.error as { response?: { data?: { error?: string } } })
-        .response?.data?.error ?? 'Registration failed'
+  const registerErr = register_.error as { response?: { data?: { error?: string } } } | null;
+  const apiError = registerErr
+    ? registerErr.response?.data?.error ?? 'Unable to reach server. Is the backend running?'
     : null;
 
   return (
