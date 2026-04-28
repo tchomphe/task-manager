@@ -32,9 +32,8 @@ describe('ConfirmDialog', () => {
 
   it('calls onCancel when backdrop is clicked', async () => {
     const onCancel = vi.fn();
-    const { container } = render(<ConfirmDialog message="Delete?" onConfirm={vi.fn()} onCancel={onCancel} />);
-    // Click the outer backdrop div (first child of container)
-    const backdrop = container.firstChild as HTMLElement;
+    render(<ConfirmDialog message="Delete?" onConfirm={vi.fn()} onCancel={onCancel} />);
+    const backdrop = screen.getByTestId('dialog-backdrop');
     await userEvent.click(backdrop);
     expect(onCancel).toHaveBeenCalled();
   });

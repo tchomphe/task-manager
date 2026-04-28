@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { Button } from './Button';
 
 interface Props {
   message: string;
@@ -8,6 +9,12 @@ interface Props {
 }
 
 export function ConfirmDialog({ message, onConfirm, onCancel, confirmLabel = 'Delete' }: Props) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cancelRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
     document.addEventListener('keydown', handler);
@@ -16,27 +23,25 @@ export function ConfirmDialog({ message, onConfirm, onCancel, confirmLabel = 'De
 
   return (
     <div
+      data-testid="dialog-backdrop"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onClick={onCancel}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-describedby="confirm-dialog-message"
         className="bg-white rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl"
         onClick={e => e.stopPropagation()}
       >
-        <p className="text-sm text-gray-700 mb-6">{message}</p>
+        <p id="confirm-dialog-message" className="text-sm text-gray-700 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-          >
+          <Button variant="secondary" onClick={onCancel} ref={cancelRef}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
+          </Button>
+          <Button variant="primary" onClick={onConfirm} className="bg-red-600 hover:bg-red-700">
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
