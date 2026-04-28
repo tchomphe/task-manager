@@ -121,7 +121,13 @@ All configuration lives in `backend/TaskManager.Api/appsettings.Development.json
 
 Interactive docs: **http://localhost:5000/swagger**
 
-Click **Authorize**, paste your JWT token (from `/api/auth/login` or `/api/auth/register`), then exercise any endpoint.
+To use authenticated endpoints in Swagger UI:
+
+1. Expand `POST /api/auth/register` or `POST /api/auth/login`, click **Try it out**, fill in your credentials, and click **Execute**
+2. Copy the `token` value from the response body
+3. Click the **Authorize** button (top right of the page)
+4. Paste the token into the **Value** field and click **Authorize**
+5. All subsequent requests will include the `Authorization: Bearer <token>` header automatically
 
 For scripted testing, see [`api.http`](./api.http) — compatible with VS Code REST Client and JetBrains HTTP Client.
 
