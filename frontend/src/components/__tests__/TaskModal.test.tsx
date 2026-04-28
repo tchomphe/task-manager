@@ -1,0 +1,55 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TaskModal } from '../TaskModal';
+import axiosClient from '../../lib/axiosClient';
+
+vi.mock('../../lib/axiosClient');
+
+function renderModal(initialEntry = '/tasks') {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  return render(
+    <QueryClientProvider client={qc}>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes><Route path="/tasks" element={<TaskModal />} /></Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+}
+
+describe('TaskModal', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.mocked(axiosClient.get).mockResolvedValue({ data: [] });
+  });
+
+  it('renders nothing when ?task is absent', () => {
+    const { container } = renderModal('/tasks');
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('renders create form when ?task=new', () => {
+    renderModal('/tasks?task=new');
+    expect(screen.getByText('New Task')).toBeDefined();
+    expect(screen.getByRole('button', { name: /create task/i })).toBeDefined();
+  });
+
+  it('renders edit form when ?task=<id> and task is fetched', async () => {
+    vi.mocked(axiosClient.get).mockImplementation(url => {
+      if (String(url).includes('/tasks/task-1')) {
+        return Promise.resolve({ data: { id: 'task-1', title: 'Existing Task', description: null, status: 'Todo', priority: 'Medium', dueDate: null, tags: [], createdAt: '', updatedAt: '' } });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    renderModal('/tasks?task=task-1');
+    await waitFor(() => expect(screen.getByText('Edit Task')).toBeDefined());
+  });
+
+  it('closes modal on X button click', async () => {
+    renderModal('/tasks?task=new');
+    await userEvent.click(screen.getByRole('button', { name: /✕/ }));
+    await waitFor(() => expect(screen.queryByText('New Task')).toBeNull());
+  });
+});
