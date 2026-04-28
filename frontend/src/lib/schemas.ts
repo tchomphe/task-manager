@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { CreateTaskRequest, UpdateTaskRequest } from '../types';
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -35,8 +36,6 @@ export const updateTaskSchema = createTaskSchema.partial().refine(
 
 export type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskFormValues = z.infer<typeof updateTaskSchema>;
-
-import type { CreateTaskRequest, UpdateTaskRequest } from '../types';
 
 // Compile-time invariant: form values must be assignable to API request types
 export type _AssertCreateCompat = CreateTaskFormValues extends CreateTaskRequest ? true : never;
