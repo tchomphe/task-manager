@@ -10,7 +10,7 @@ export function TagChip({ name, color, onRemove }: Props) {
   const fallback = 'bg-gray-100 text-gray-600';
 
   return (
-    <span className={`${base} ${color ? '' : fallback}`} style={style}>
+    <span className={color ? base : `${base} ${fallback}`} style={style}>
       {name}
       {onRemove && (
         <button

@@ -9,8 +9,10 @@ describe('TagChip', () => {
     expect(screen.getByText('work')).toBeDefined();
   });
   it('renders with gray fallback when color is null', () => {
-    const { container } = render(<TagChip name="work" color={null} />);
-    expect(container.firstChild).toBeDefined();
+    render(<TagChip name="work" color={null} />);
+    const el = screen.getByText('work');
+    expect(el.className).toContain('bg-gray-100');
+    expect(el.className).toContain('text-gray-600');
   });
   it('calls onRemove when remove button clicked', async () => {
     const onRemove = vi.fn();

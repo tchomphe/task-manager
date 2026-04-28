@@ -5,14 +5,20 @@ import { StatusBadge } from '../StatusBadge';
 describe('StatusBadge', () => {
   it('renders Todo', () => {
     render(<StatusBadge status="Todo" />);
-    expect(screen.getByText('Todo')).toBeDefined();
+    const el = screen.getByText('Todo');
+    expect(el.className).toContain('bg-slate-100');
+    expect(el.className).toContain('text-slate-600');
   });
   it('renders In Progress for InProgress', () => {
     render(<StatusBadge status="InProgress" />);
-    expect(screen.getByText('In Progress')).toBeDefined();
+    const el = screen.getByText('In Progress');
+    expect(el.className).toContain('bg-blue-100');
+    expect(el.className).toContain('text-blue-600');
   });
   it('renders Done', () => {
     render(<StatusBadge status="Done" />);
-    expect(screen.getByText('Done')).toBeDefined();
+    const el = screen.getByText('Done');
+    expect(el.className).toContain('bg-green-100');
+    expect(el.className).toContain('text-green-600');
   });
 });

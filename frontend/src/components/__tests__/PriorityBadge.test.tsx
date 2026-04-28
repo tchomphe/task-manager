@@ -5,14 +5,20 @@ import { PriorityBadge } from '../PriorityBadge';
 describe('PriorityBadge', () => {
   it('renders Low with gray style', () => {
     render(<PriorityBadge priority="Low" />);
-    expect(screen.getByText('Low')).toBeDefined();
+    const el = screen.getByText('Low');
+    expect(el.className).toContain('bg-gray-100');
+    expect(el.className).toContain('text-gray-600');
   });
   it('renders Medium with yellow style', () => {
     render(<PriorityBadge priority="Medium" />);
-    expect(screen.getByText('Medium')).toBeDefined();
+    const el = screen.getByText('Medium');
+    expect(el.className).toContain('bg-yellow-100');
+    expect(el.className).toContain('text-yellow-700');
   });
   it('renders High with red style', () => {
     render(<PriorityBadge priority="High" />);
-    expect(screen.getByText('High')).toBeDefined();
+    const el = screen.getByText('High');
+    expect(el.className).toContain('bg-red-100');
+    expect(el.className).toContain('text-red-600');
   });
 });
