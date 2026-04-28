@@ -6,9 +6,10 @@ interface Props {
   onConfirm: () => void;
   onCancel: () => void;
   confirmLabel?: string;
+  title?: string;
 }
 
-export function ConfirmDialog({ message, onConfirm, onCancel, confirmLabel = 'Delete' }: Props) {
+export function ConfirmDialog({ message, onConfirm, onCancel, confirmLabel = 'Delete', title = 'Confirm' }: Props) {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -30,10 +31,12 @@ export function ConfirmDialog({ message, onConfirm, onCancel, confirmLabel = 'De
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-message"
         className="bg-white rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl"
         onClick={e => e.stopPropagation()}
       >
+        <h2 id="confirm-dialog-title" className="text-base font-semibold text-gray-900 mb-2">{title}</h2>
         <p id="confirm-dialog-message" className="text-sm text-gray-700 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={onCancel} ref={cancelRef}>

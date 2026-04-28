@@ -37,4 +37,11 @@ describe('ConfirmDialog', () => {
     await userEvent.click(backdrop);
     expect(onCancel).toHaveBeenCalled();
   });
+
+  it('does not call onCancel when dialog content is clicked', async () => {
+    const onCancel = vi.fn();
+    render(<ConfirmDialog message="Delete?" onConfirm={vi.fn()} onCancel={onCancel} />);
+    await userEvent.click(screen.getByText('Delete?'));
+    expect(onCancel).not.toHaveBeenCalled();
+  });
 });
