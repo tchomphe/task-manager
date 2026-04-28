@@ -1,6 +1,9 @@
 import { useSearchParams } from 'react-router-dom';
 import type { TaskQueryParams, TaskStatus, Priority } from '../types';
 
+const VALID_STATUSES: ReadonlySet<string> = new Set(['Todo', 'InProgress', 'Done']);
+const VALID_PRIORITIES: ReadonlySet<string> = new Set(['Low', 'Medium', 'High']);
+
 export function useQueryParams() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -22,13 +25,14 @@ export function useQueryParams() {
 
   function getTaskParams(): TaskQueryParams {
     const page = searchParams.get('page');
-    const status = searchParams.get('status') as TaskStatus | null;
-    const priority = searchParams.get('priority') as Priority | null;
+    const rawStatus = searchParams.get('status');
+    const rawPriority = searchParams.get('priority');
+    const parsed = page !== null ? parseInt(page, 10) : 1;
     return {
       search: searchParams.get('search') ?? undefined,
-      status: status ?? undefined,
-      priority: priority ?? undefined,
-      page: page ? parseInt(page, 10) : 1,
+      status: (rawStatus && VALID_STATUSES.has(rawStatus)) ? rawStatus as TaskStatus : undefined,
+      priority: (rawPriority && VALID_PRIORITIES.has(rawPriority)) ? rawPriority as Priority : undefined,
+      page: (Number.isFinite(parsed) && parsed >= 1) ? parsed : 1,
     };
   }
 
