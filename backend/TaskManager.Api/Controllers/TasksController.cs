@@ -46,7 +46,7 @@ public class TasksController : ControllerBase
         => Ok(await _tasks.GetTaskAsync(UserId, id));
 
     /// <summary>
-    /// Update a task (PATCH semantics — omit any field to leave it unchanged).
+    /// Update a task. All fields are optional; omit any field to leave it unchanged.
     /// Pass <c>tags: []</c> to clear all tags; omit <c>tags</c> entirely to leave tags unchanged.
     /// </summary>
     /// <response code="200">Updated task.</response>
