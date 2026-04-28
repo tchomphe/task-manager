@@ -1,12 +1,27 @@
-import { useQueryParams } from '../lib/queryParams';
+import { useSearchParams } from 'react-router-dom';
 
 export function FilterBar() {
-  const { getParam, setParam } = useQueryParams();
-  const status = getParam('status');
-  const priority = getParam('priority');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = searchParams.get('status');
+  const priority = searchParams.get('priority');
 
-  const handleStatus = (v: string) => { setParam('status', v || null); setParam('page', null); };
-  const handlePriority = (v: string) => { setParam('priority', v || null); setParam('page', null); };
+  const handleStatus = (v: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (v) next.set('status', v); else next.delete('status');
+      next.delete('page');
+      return next;
+    }, { replace: true });
+  };
+
+  const handlePriority = (v: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (v) next.set('priority', v); else next.delete('priority');
+      next.delete('page');
+      return next;
+    }, { replace: true });
+  };
 
   return (
     <div className="space-y-3">

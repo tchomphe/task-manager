@@ -40,7 +40,7 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTaskRequest }) =>
       axiosClient.put<TaskResponse>(`/tasks/${id}`, data).then(r => r.data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
+    onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
   });
 }
 

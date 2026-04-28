@@ -34,8 +34,9 @@ export function TaskCard({ task }: Props) {
         <button
           type="button"
           onClick={handleCheckmark}
+          disabled={updateTask.isPending}
           aria-label={isDone ? 'Mark as todo' : 'Mark as done'}
-          className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isDone ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 hover:border-green-400'}`}
+          className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors disabled:opacity-50 ${isDone ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 hover:border-green-400'}`}
         >
           {isDone && (
             <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
@@ -52,11 +53,14 @@ export function TaskCard({ task }: Props) {
             <StatusBadge status={task.status} />
             {task.dueDate && (
               <span className="text-xs text-gray-500">
-                Due {new Date(task.dueDate).toLocaleDateString()}
+                Due {new Date(task.dueDate).toLocaleDateString('en-US', { timeZone: 'UTC' })}
               </span>
             )}
             {task.tags.map(tag => <TagChip key={tag.id} name={tag.name} color={tag.color} />)}
           </div>
+          {updateTask.isError && (
+            <p className="text-xs text-red-600 mt-1">Failed to update status. Please try again.</p>
+          )}
         </div>
       </div>
     </div>

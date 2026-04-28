@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useQueryParams } from '../lib/queryParams';
+import { useSearchParams } from 'react-router-dom';
 
 export function SearchBar() {
-  const { getParam, setParam } = useQueryParams();
-  const [value, setValue] = useState(getParam('search') ?? '');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [value, setValue] = useState(searchParams.get('search') ?? '');
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setParam('search', value.trim() || null);
-      setParam('page', null);
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev);
+        const trimmed = value.trim();
+        if (trimmed) next.set('search', trimmed);
+        else next.delete('search');
+        next.delete('page');
+        return next;
+      }, { replace: true });
     }, 300);
     return () => clearTimeout(timeout);
-  }, [value]);
+  }, [value, setSearchParams]);
 
   return (
     <input
