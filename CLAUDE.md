@@ -36,12 +36,14 @@ These are non-negotiable regardless of what seems convenient:
 - **Repository interfaces per domain area** (`ITaskRepository`, `ITagRepository`). Services depend on interfaces, not EF Core directly. No separate class libraries.
 - **Global `IExceptionHandler` middleware** handles all unhandled exceptions. Do not scatter try/catch for error formatting.
 - **FluentValidation** for all input validation. Validators live alongside their request DTOs.
+- **XML doc comments on all controller actions.** Every public action must have `/// <summary>`, `/// <response code="NNN">` tags, and `[ProducesResponseType]` attributes. These power the Swagger UI.
 
 ### Frontend
 - **Hooks own all data logic.** Page components call hooks; they never call Axios directly.
 - **Types in `src/types/` mirror backend DTOs 1:1.** If a backend field changes, TypeScript must surface the mismatch.
 - **Every list and form renders three states explicitly:** loading skeleton, empty state, error message. No silent failures.
 - **Axios instance in `src/lib/`** attaches JWT on every request and handles 401 redirects in one place.
+- **Toast feedback on all mutations.** Use `useToast()` from `components/Toast.tsx` in every mutation hook — `onSuccess` and `onError` callbacks show user-facing feedback. Never leave a mutation silent.
 
 ---
 
@@ -73,10 +75,24 @@ task-manager/
 
 ---
 
-## Sections To Fill In After Roadmap
+## Conventions
 
-- [ ] Commit message conventions
-- [ ] Branch strategy
-- [ ] Test coverage expectations (beyond "at least one")
-- [ ] Environment variable names and setup steps
-- [ ] Migration workflow
+### Commit messages
+Conventional commits: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `chore` with optional scope — e.g. `feat(ui):`, `docs(api):`, `test(hooks):`.
+
+### Branch strategy
+Feature branches per phase (`feature/phase-N`), isolated via git worktrees (`.worktrees/`), merged to `main` as fast-forward. No long-lived branches.
+
+### Test coverage expectations
+- **Backend unit tests:** cover service logic via Moq-stubbed repositories. Happy path + key error cases (not found, unauthorized, validation).
+- **Backend integration tests:** cover HTTP endpoints via `WebApplicationFactory` + EF InMemory. One test class per controller.
+- **Frontend tests:** component tests with React Testing Library, hook tests with `renderHook`. All three render states (loading, empty, error) must be covered for any list or form component.
+
+### Environment variables
+All config lives in `backend/TaskManager.Api/appsettings.Development.json`. Keys: `JwtSettings:Secret` (≥32 chars), `JwtSettings:ExpiryMinutes`, `JwtSettings:Issuer`, `JwtSettings:Audience`, `ConnectionStrings:DefaultConnection`.
+
+### Migration workflow
+1. Make model change in `Models/`
+2. `cd backend/TaskManager.Api && dotnet ef migrations add <DescriptiveName>`
+3. Review the generated file in `Data/Migrations/`
+4. `dotnet ef database update` to apply
