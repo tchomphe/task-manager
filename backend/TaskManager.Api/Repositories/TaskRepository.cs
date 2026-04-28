@@ -26,9 +26,12 @@ public class TaskRepository : ITaskRepository
             query = query.Where(t => t.Priority == queryParams.Priority);
 
         if (!string.IsNullOrWhiteSpace(queryParams.Search))
+        {
+            var pattern = $"%{queryParams.Search}%";
             query = query.Where(t =>
-                t.Title.Contains(queryParams.Search) ||
-                (t.Description != null && t.Description.Contains(queryParams.Search)));
+                EF.Functions.Like(t.Title, pattern) ||
+                (t.Description != null && EF.Functions.Like(t.Description, pattern)));
+        }
 
         var total = await query.CountAsync();
 
