@@ -71,7 +71,7 @@ describe('TaskForm', () => {
     await userEvent.type(screen.getByPlaceholderText(/add tags/i), 'newone');
     await waitFor(() => expect(screen.getByText(/create "newone"/i)).toBeDefined());
     await userEvent.click(screen.getByText(/create "newone"/i));
-    await waitFor(() => expect(screen.getAllByText(/failed to create tag/i).length).toBeGreaterThan(0));
+    await waitFor(() => expect(screen.getAllByText(/failed to create tag/i)).toHaveLength(2));
   });
 
   it('includes selected tag names in onSubmit payload', async () => {
