@@ -49,7 +49,37 @@ describe('TaskModal', () => {
 
   it('closes modal on X button click', async () => {
     renderModal('/tasks?task=new');
-    await userEvent.click(screen.getByRole('button', { name: /✕/ }));
+    await userEvent.click(screen.getByRole('button', { name: /close/i }));
     await waitFor(() => expect(screen.queryByText('New Task')).toBeNull());
+  });
+
+  it('closes modal on Escape key', async () => {
+    renderModal('/tasks?task=new');
+    expect(screen.getByText('New Task')).toBeDefined();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByText('New Task')).toBeNull());
+  });
+
+  it('closes modal on backdrop click', async () => {
+    renderModal('/tasks?task=new');
+    expect(screen.getByText('New Task')).toBeDefined();
+    await userEvent.click(screen.getByTestId('modal-backdrop'));
+    await waitFor(() => expect(screen.queryByText('New Task')).toBeNull());
+  });
+
+  it('shows ConfirmDialog when Delete task is clicked in edit mode', async () => {
+    vi.mocked(axiosClient.get).mockImplementation(url => {
+      if (String(url).includes('/tasks/task-1')) {
+        return Promise.resolve({ data: { id: 'task-1', title: 'Existing Task', description: null, status: 'Todo', priority: 'Medium', dueDate: null, tags: [], createdAt: '', updatedAt: '' } });
+      }
+      return Promise.resolve({ data: [] });
+    });
+    vi.mocked(axiosClient.delete).mockResolvedValueOnce({ data: undefined });
+
+    renderModal('/tasks?task=task-1');
+    await waitFor(() => expect(screen.getByText(/delete task/i)).toBeDefined());
+
+    await userEvent.click(screen.getByText(/delete task/i));
+    expect(screen.getByText(/cannot be undone/i)).toBeDefined();
   });
 });

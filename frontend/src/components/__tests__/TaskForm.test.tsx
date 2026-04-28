@@ -60,4 +60,29 @@ describe('TaskForm', () => {
     await userEvent.type(screen.getByPlaceholderText(/add tags/i), 'newone');
     await waitFor(() => expect(screen.getByText(/create "newone"/i)).toBeDefined());
   });
+
+  it('shows inline error when tag creation fails', async () => {
+    vi.mocked(axiosClient.get).mockResolvedValue({ data: [] });
+    vi.mocked(axiosClient.post).mockRejectedValueOnce(new Error('Conflict'));
+    render(<TaskForm onSubmit={vi.fn()} />, { wrapper });
+    await userEvent.type(screen.getByPlaceholderText(/add tags/i), 'newone');
+    await waitFor(() => expect(screen.getByText(/create "newone"/i)).toBeDefined());
+    await userEvent.click(screen.getByText(/create "newone"/i));
+    await waitFor(() => expect(screen.getByText(/failed to create tag/i)).toBeDefined());
+  });
+
+  it('includes selected tag names in onSubmit payload', async () => {
+    vi.mocked(axiosClient.get).mockResolvedValue({ data: [{ id: 't1', name: 'work', color: '#6366f1' }] });
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<TaskForm onSubmit={onSubmit} />, { wrapper });
+    await waitFor(() => expect(vi.mocked(axiosClient.get)).toHaveBeenCalled());
+    await userEvent.type(screen.getByPlaceholderText(/add tags/i), 'wo');
+    await waitFor(() => expect(screen.getByText('work')).toBeDefined());
+    await userEvent.click(screen.getByText('work'));
+    await userEvent.type(screen.getByLabelText(/title/i), 'My task');
+    await userEvent.click(screen.getByRole('button', { name: /create task/i }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'My task', tags: ['work'] })
+    ));
+  });
 });

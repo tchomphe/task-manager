@@ -20,8 +20,10 @@ export function TagManagerModal({ onClose }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState('');
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -43,14 +45,25 @@ export function TagManagerModal({ onClose }: Props) {
 
   const handleUpdate = async () => {
     if (!editingId) return;
-    await updateTag.mutateAsync({ id: editingId, data: { name: editName.trim() || undefined, color: editColor || undefined } });
-    setEditingId(null);
+    try {
+      await updateTag.mutateAsync({ id: editingId, data: { name: editName.trim() || undefined, color: editColor || undefined } });
+      setEditingId(null);
+      setUpdateError(null);
+    } catch {
+      setUpdateError('Failed to update tag. Please try again.');
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await deleteTag.mutateAsync(deleteId);
-    setDeleteId(null);
+    try {
+      await deleteTag.mutateAsync(deleteId);
+      setDeleteId(null);
+      setDeleteError(null);
+    } catch {
+      setDeleteError('Failed to delete tag. Please try again.');
+      setDeleteId(null);
+    }
   };
 
   return (
@@ -82,6 +95,9 @@ export function TagManagerModal({ onClose }: Props) {
                           <input value={editName} onChange={e => setEditName(e.target.value)} className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                           <button onClick={handleUpdate} className="text-xs text-indigo-600 hover:underline">Save</button>
                           <button onClick={() => setEditingId(null)} className="text-xs text-gray-400 hover:underline">Cancel</button>
+                          {updateError && editingId === tag.id && (
+                            <span className="text-xs text-red-600">{updateError}</span>
+                          )}
                         </>
                       ) : (
                         <>
@@ -94,6 +110,7 @@ export function TagManagerModal({ onClose }: Props) {
                     </div>
                   ))}
                 </div>
+                {deleteError && <p className="text-xs text-red-600 mt-1">{deleteError}</p>}
                 <div className="pt-3 border-t border-gray-100">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">New tag</p>
                   <div className="flex gap-2">
