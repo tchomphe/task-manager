@@ -69,7 +69,7 @@ export function TaskForm({ task, onSubmit, onDelete, isSubmitting, submitError }
       description: formData.description || undefined,
       status: formData.status,
       priority: formData.priority,
-      dueDate: formData.dueDate || undefined,
+      dueDate: formData.dueDate ? `${formData.dueDate}T00:00:00Z` : undefined,
       tags: selectedTags.map(t => t.name),
     });
   });
