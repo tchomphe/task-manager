@@ -22,13 +22,16 @@ export type RegisterFormValues = z.infer<typeof registerSchema>;
 export const createTaskSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title cannot exceed 200 characters'),
   description: z.string().optional(),
-  status: z.enum(['Todo', 'InProgress', 'Done']).default('Todo'),
-  priority: z.enum(['Low', 'Medium', 'High']).default('Medium'),
+  status: z.enum(['Todo', 'InProgress', 'Done']).optional(),
+  priority: z.enum(['Low', 'Medium', 'High']).optional(),
   dueDate: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });
 
-export const updateTaskSchema = createTaskSchema.partial();
+export const updateTaskSchema = createTaskSchema.partial().refine(
+  data => Object.keys(data).length > 0,
+  { message: 'At least one field is required' }
+);
 
 export type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskFormValues = z.infer<typeof updateTaskSchema>;

@@ -26,9 +26,12 @@ describe('createTaskSchema', () => {
 });
 
 describe('updateTaskSchema', () => {
-  it('accepts empty object (all fields optional)', () => {
+  it('rejects empty object', () => {
     const result = updateTaskSchema.safeParse({});
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('At least one field is required');
+    }
   });
 
   it('accepts partial update', () => {
