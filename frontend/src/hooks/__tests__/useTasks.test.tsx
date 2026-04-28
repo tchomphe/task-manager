@@ -4,13 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type ReactNode } from 'react';
 import { useTasks, useTask, useCreateTask, useDeleteTask } from '../useTasks';
 import axiosClient from '../../lib/axiosClient';
+import { ToastProvider } from '../../components/Toast';
 import type { PagedResponse, TaskResponse } from '../../types';
 
 vi.mock('../../lib/axiosClient');
 
 function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  return <QueryClientProvider client={qc}><ToastProvider>{children}</ToastProvider></QueryClientProvider>;
 }
 
 const mockPage = {
@@ -95,7 +96,7 @@ describe('useDeleteTask optimistic update', () => {
     );
 
     const customWrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+      <QueryClientProvider client={qc}><ToastProvider>{children}</ToastProvider></QueryClientProvider>
     );
 
     const { result } = renderHook(() => useDeleteTask(), { wrapper: customWrapper });
@@ -118,7 +119,7 @@ describe('useDeleteTask optimistic update', () => {
     vi.mocked(axiosClient.get).mockResolvedValue({ data: mockPage });
 
     const customWrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+      <QueryClientProvider client={qc}><ToastProvider>{children}</ToastProvider></QueryClientProvider>
     );
 
     const { result } = renderHook(() => useDeleteTask(), { wrapper: customWrapper });

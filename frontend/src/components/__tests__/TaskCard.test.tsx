@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type ReactNode } from 'react';
 import { TaskCard } from '../TaskCard';
 import axiosClient from '../../lib/axiosClient';
+import { ToastProvider } from '../Toast';
 import type { TaskResponse } from '../../types';
 
 vi.mock('../../lib/axiosClient');
@@ -19,11 +20,13 @@ function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return (
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={['/tasks']}>
-        <Routes>
-          <Route path="/tasks" element={<>{children}</>} />
-        </Routes>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={['/tasks']}>
+          <Routes>
+            <Route path="/tasks" element={<>{children}</>} />
+          </Routes>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
@@ -75,16 +78,18 @@ describe('TaskCard', () => {
     const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
     render(
       <QueryClientProvider client={qc}>
-        <MemoryRouter initialEntries={['/tasks']}>
-          <Routes>
-            <Route path="/tasks" element={
-              <>
-                <TaskCard task={mockTask} />
-                <TaskParamDisplay />
-              </>
-            } />
-          </Routes>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/tasks']}>
+            <Routes>
+              <Route path="/tasks" element={
+                <>
+                  <TaskCard task={mockTask} />
+                  <TaskParamDisplay />
+                </>
+              } />
+            </Routes>
+          </MemoryRouter>
+        </ToastProvider>
       </QueryClientProvider>
     );
     await userEvent.click(screen.getByRole('button', { name: /mark as done/i }));

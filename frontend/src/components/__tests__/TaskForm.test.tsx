@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type ReactNode } from 'react';
 import { TaskForm } from '../TaskForm';
 import axiosClient from '../../lib/axiosClient';
+import { ToastProvider } from '../Toast';
 
 vi.mock('../../lib/axiosClient');
 
@@ -13,9 +14,11 @@ function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return (
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={['/tasks']}>
-        <Routes><Route path="/tasks" element={<>{children}</>} /></Routes>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={['/tasks']}>
+          <Routes><Route path="/tasks" element={<>{children}</>} /></Routes>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
@@ -68,7 +71,7 @@ describe('TaskForm', () => {
     await userEvent.type(screen.getByPlaceholderText(/add tags/i), 'newone');
     await waitFor(() => expect(screen.getByText(/create "newone"/i)).toBeDefined());
     await userEvent.click(screen.getByText(/create "newone"/i));
-    await waitFor(() => expect(screen.getByText(/failed to create tag/i)).toBeDefined());
+    await waitFor(() => expect(screen.getAllByText(/failed to create tag/i).length).toBeGreaterThan(0));
   });
 
   it('includes selected tag names in onSubmit payload', async () => {

@@ -4,12 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type ReactNode } from 'react';
 import { useTags, useCreateTag, useUpdateTag, useDeleteTag } from '../useTags';
 import axiosClient from '../../lib/axiosClient';
+import { ToastProvider } from '../../components/Toast';
 
 vi.mock('../../lib/axiosClient');
 
 function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  return <QueryClientProvider client={qc}><ToastProvider>{children}</ToastProvider></QueryClientProvider>;
 }
 
 const mockTags = [

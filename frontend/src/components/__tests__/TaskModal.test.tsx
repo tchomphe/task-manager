@@ -5,6 +5,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskModal } from '../TaskModal';
 import axiosClient from '../../lib/axiosClient';
+import { ToastProvider } from '../Toast';
 
 vi.mock('../../lib/axiosClient');
 
@@ -12,9 +13,11 @@ function renderModal(initialEntry = '/tasks') {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return render(
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes><Route path="/tasks" element={<TaskModal />} /></Routes>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <Routes><Route path="/tasks" element={<TaskModal />} /></Routes>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
@@ -26,8 +29,9 @@ describe('TaskModal', () => {
   });
 
   it('renders nothing when ?task is absent', () => {
-    const { container } = renderModal('/tasks');
-    expect(container.firstChild).toBeNull();
+    renderModal('/tasks');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByText('New Task')).toBeNull();
   });
 
   it('renders create form when ?task=new', () => {

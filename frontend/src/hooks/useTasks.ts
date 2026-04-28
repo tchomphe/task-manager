@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../lib/axiosClient';
+import { useToast } from '../components/Toast';
 import type { TaskResponse, CreateTaskRequest, UpdateTaskRequest, PagedResponse, TaskQueryParams } from '../types';
 
 export function useTasks(params: TaskQueryParams) {
@@ -28,24 +29,31 @@ export function useTask(id: string | undefined) {
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   return useMutation({
     mutationFn: (data: CreateTaskRequest) =>
       axiosClient.post<TaskResponse>('/tasks', data).then(r => r.data),
+    onSuccess: () => { showToast('Task created'); },
+    onError: () => { showToast('Failed to create task', 'error'); },
     onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
   });
 }
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTaskRequest }) =>
       axiosClient.put<TaskResponse>(`/tasks/${id}`, data).then(r => r.data),
+    onSuccess: () => { showToast('Task updated'); },
+    onError: () => { showToast('Failed to update task', 'error'); },
     onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
   });
 }
 
 export function useDeleteTask() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   return useMutation({
     mutationFn: (id: string) => axiosClient.delete(`/tasks/${id}`),
     onMutate: async (id: string) => {
@@ -57,8 +65,10 @@ export function useDeleteTask() {
       );
       return { previous };
     },
+    onSuccess: () => { showToast('Task deleted'); },
     onError: (_err, _id, context) => {
       context?.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      showToast('Failed to delete task', 'error');
     },
     onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tasks'] }); },
   });
