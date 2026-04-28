@@ -34,6 +34,14 @@ describe('updateTaskSchema', () => {
     }
   });
 
+  it('rejects object with all undefined values', () => {
+    const result = updateTaskSchema.safeParse({ title: undefined });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('At least one field is required');
+    }
+  });
+
   it('accepts partial update', () => {
     const result = updateTaskSchema.safeParse({ title: 'Updated' });
     expect(result.success).toBe(true);

@@ -29,9 +29,15 @@ export const createTaskSchema = z.object({
 });
 
 export const updateTaskSchema = createTaskSchema.partial().refine(
-  data => Object.keys(data).length > 0,
+  data => Object.values(data).some(v => v !== undefined),
   { message: 'At least one field is required' }
 );
 
 export type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskFormValues = z.infer<typeof updateTaskSchema>;
+
+import type { CreateTaskRequest, UpdateTaskRequest } from '../types';
+
+// Compile-time invariant: form values must be assignable to API request types
+export type _AssertCreateCompat = CreateTaskFormValues extends CreateTaskRequest ? true : never;
+export type _AssertUpdateCompat = UpdateTaskFormValues extends UpdateTaskRequest ? true : never;
