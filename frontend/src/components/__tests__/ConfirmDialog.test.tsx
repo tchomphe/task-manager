@@ -22,4 +22,20 @@ describe('ConfirmDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(onCancel).toHaveBeenCalledOnce();
   });
+
+  it('calls onCancel when Escape key is pressed', async () => {
+    const onCancel = vi.fn();
+    render(<ConfirmDialog message="Delete?" onConfirm={vi.fn()} onCancel={onCancel} />);
+    await userEvent.keyboard('{Escape}');
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it('calls onCancel when backdrop is clicked', async () => {
+    const onCancel = vi.fn();
+    const { container } = render(<ConfirmDialog message="Delete?" onConfirm={vi.fn()} onCancel={onCancel} />);
+    // Click the outer backdrop div (first child of container)
+    const backdrop = container.firstChild as HTMLElement;
+    await userEvent.click(backdrop);
+    expect(onCancel).toHaveBeenCalled();
+  });
 });
