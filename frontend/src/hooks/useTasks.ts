@@ -4,13 +4,14 @@ import type { TaskResponse, CreateTaskRequest, UpdateTaskRequest, PagedResponse,
 
 export function useTasks(params: TaskQueryParams) {
   return useQuery({
-    queryKey: ['tasks', params],
+    queryKey: ['tasks', 'list', params],
     queryFn: () => {
       const sp = new URLSearchParams();
       if (params.search) sp.set('search', params.search);
       if (params.status) sp.set('status', params.status);
       if (params.priority) sp.set('priority', params.priority);
       if (params.page && params.page > 1) sp.set('page', String(params.page));
+      if (params.pageSize) sp.set('pageSize', String(params.pageSize));
       const qs = sp.toString();
       return axiosClient.get<PagedResponse<TaskResponse>>(`/tasks${qs ? `?${qs}` : ''}`).then(r => r.data);
     },
@@ -19,7 +20,7 @@ export function useTasks(params: TaskQueryParams) {
 
 export function useTask(id: string | undefined) {
   return useQuery({
-    queryKey: ['tasks', id],
+    queryKey: ['tasks', 'detail', id],
     queryFn: () => axiosClient.get<TaskResponse>(`/tasks/${id}`).then(r => r.data),
     enabled: !!id && id !== 'new',
   });
@@ -48,10 +49,10 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (id: string) => axiosClient.delete(`/tasks/${id}`),
     onMutate: async (id: string) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previous = queryClient.getQueriesData<PagedResponse<TaskResponse>>({ queryKey: ['tasks'] });
+      await queryClient.cancelQueries({ queryKey: ['tasks', 'list'] });
+      const previous = queryClient.getQueriesData<PagedResponse<TaskResponse>>({ queryKey: ['tasks', 'list'] });
       queryClient.setQueriesData<PagedResponse<TaskResponse>>(
-        { queryKey: ['tasks'] },
+        { queryKey: ['tasks', 'list'] },
         old => old ? { ...old, items: old.items.filter(t => t.id !== id) } : old,
       );
       return { previous };

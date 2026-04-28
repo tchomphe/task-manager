@@ -31,6 +31,6 @@ export function useDeleteTag() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => axiosClient.delete(`/tags/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
+    onSettled: () => { queryClient.invalidateQueries({ queryKey: ['tags'] }); },
   });
 }

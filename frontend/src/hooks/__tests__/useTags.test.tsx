@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type ReactNode } from 'react';
-import { useTags, useCreateTag, useDeleteTag } from '../useTags';
+import { useTags, useCreateTag, useUpdateTag, useDeleteTag } from '../useTags';
 import axiosClient from '../../lib/axiosClient';
 
 vi.mock('../../lib/axiosClient');
@@ -48,5 +48,16 @@ describe('useDeleteTag', () => {
     const { result } = renderHook(() => useDeleteTag(), { wrapper });
     await result.current.mutateAsync('tag-1');
     expect(vi.mocked(axiosClient.delete)).toHaveBeenCalledWith('/tags/tag-1');
+  });
+});
+
+describe('useUpdateTag', () => {
+  beforeEach(() => { vi.resetAllMocks(); });
+
+  it('puts to /tags/:id', async () => {
+    vi.mocked(axiosClient.put).mockResolvedValueOnce({ data: { id: 'tag-1', name: 'renamed', color: '#ff0000' } });
+    const { result } = renderHook(() => useUpdateTag(), { wrapper });
+    await result.current.mutateAsync({ id: 'tag-1', data: { name: 'renamed', color: '#ff0000' } });
+    expect(vi.mocked(axiosClient.put)).toHaveBeenCalledWith('/tags/tag-1', { name: 'renamed', color: '#ff0000' });
   });
 });
