@@ -18,7 +18,7 @@ const mockPage = {
 };
 
 describe('useTasks', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => { vi.resetAllMocks(); });
 
   it('fetches tasks and returns paged data', async () => {
     vi.mocked(axiosClient.get).mockResolvedValueOnce({ data: mockPage });
@@ -36,7 +36,7 @@ describe('useTasks', () => {
 });
 
 describe('useCreateTask', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => { vi.resetAllMocks(); });
 
   it('posts to /tasks and invalidates tasks query', async () => {
     const newTask = { ...mockPage.items[0], id: '2', title: 'New Task' };
@@ -48,7 +48,7 @@ describe('useCreateTask', () => {
 });
 
 describe('useDeleteTask', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => { vi.resetAllMocks(); });
 
   it('calls DELETE /tasks/:id', async () => {
     vi.mocked(axiosClient.delete).mockResolvedValueOnce({ data: undefined });
